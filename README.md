@@ -1,1 +1,1 @@
-# Programming-languaje-for-Turing-machines
+# Programming language for Turing machines
