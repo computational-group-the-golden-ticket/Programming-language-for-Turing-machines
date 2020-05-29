@@ -9,28 +9,27 @@ void succesor_function();
 void addition_function();
 
 int main(){
-    // addition_function();
+    addition_function();
     zero_constant_function();
+    succesor_function();
 
     return 0;
 }
 
 void zero_constant_function(){
-    // cinta
-    char *cero = (char *) "s0";
-    char *uno = (char *) "s1";
-
-    State default_state = {cero, 3};
+    // se crea la cinta
+    State cero = {(char *) "s0", 3};
+    State uno = {(char *) "s1", 3};
 
     State *initial_tape_state = (State *) malloc((size_t) sizeof(State) * 6);
-    initial_tape_state[0] = {uno, 3};
-    initial_tape_state[1] = {uno, 3};
-    initial_tape_state[2] = {uno, 3};
-    initial_tape_state[3] = {uno, 3};
-    initial_tape_state[4] = {uno, 3};   
-    initial_tape_state[5] = {uno, 3};
+    initial_tape_state[0] = uno;
+    initial_tape_state[1] = uno;
+    initial_tape_state[2] = uno;
+    initial_tape_state[3] = uno;
+    initial_tape_state[4] = uno;   
+    initial_tape_state[5] = uno;
 
-    Tape lista(initial_tape_state, 6, default_state);
+    Tape lista(initial_tape_state, 6, cero);
     std::cout << lista << '\n';
 
     // maquina de turing
@@ -40,8 +39,8 @@ void zero_constant_function(){
     State R = {(char *) "R", 2};
 
     Instruction *in = (Instruction *) malloc((size_t) sizeof(Instruction) * 2);
-    in[0] = {q0, {uno, 3}, {cero, 3}, q1};
-    in[1] = {q1, {cero, 3}, R, q0};
+    in[0] = {q0, uno, cero, q1};
+    in[1] = {q1, cero, R, q0};
 
     TuringMachine tm(in, 2, q0);
 
@@ -53,21 +52,19 @@ void zero_constant_function(){
 }
 
 void succesor_function(){
-    // cinta
-    char *cero = (char *) "s0";
-    char *uno = (char *) "s1";
-
-    State default_state = {cero, 3};
+    // se crea la cinta
+    State cero = {(char *) "s0", 3};
+    State uno = {(char *) "s1", 3};
 
     State *initial_tape_state = (State *) malloc((size_t) sizeof(State) * 6);
-    initial_tape_state[0] = {uno, 3};
-    initial_tape_state[1] = {uno, 3};
-    initial_tape_state[2] = {uno, 3};
-    initial_tape_state[3] = {uno, 3};
-    initial_tape_state[4] = {uno, 3};   
-    initial_tape_state[5] = {uno, 3};
+    initial_tape_state[0] = uno;
+    initial_tape_state[1] = uno;
+    initial_tape_state[2] = uno;
+    initial_tape_state[3] = uno;
+    initial_tape_state[4] = uno;   
+    initial_tape_state[5] = uno;
 
-    Tape lista(initial_tape_state, 6, default_state);
+    Tape lista(initial_tape_state, 6, cero);
     std::cout << lista << '\n';
 
     // maquina de turing
@@ -77,8 +74,8 @@ void succesor_function(){
     State R = {(char *) "R", 2};
 
     Instruction *in = (Instruction *) malloc((size_t) sizeof(Instruction) * 2);
-    in[0] = {q0, {uno, 3}, R, q0};
-    in[1] = {q0, {cero, 3}, {uno, 3}, q1};
+    in[0] = {q0, uno, R, q0};
+    in[1] = {q0, cero, uno, q1};
 
     TuringMachine tm(in, 2, q0);
 
@@ -90,21 +87,19 @@ void succesor_function(){
 }
 
 void addition_function(){
-    // cinta
-    char *cero = (char *) "s0";
-    char *uno = (char *) "s1";
-
-    State default_state = {cero, 3};
+    // se crea la cinta
+    State cero = {(char *) "s0", 3};
+    State uno = {(char *) "s1", 3};
 
     State *initial_tape_state = (State *) malloc((size_t) sizeof(State) * 6);
-    initial_tape_state[0] = {uno, 3};
-    initial_tape_state[1] = {uno, 3};
-    initial_tape_state[2] = {uno, 3};
-    initial_tape_state[3] = {cero, 3};
-    initial_tape_state[4] = {uno, 3};   
-    initial_tape_state[5] = {uno, 3};
+    initial_tape_state[0] = uno;
+    initial_tape_state[1] = uno;
+    initial_tape_state[2] = uno;
+    initial_tape_state[3] = cero;
+    initial_tape_state[4] = uno;   
+    initial_tape_state[5] = uno;
 
-    Tape lista(initial_tape_state, 6, default_state);
+    Tape lista(initial_tape_state, 6, cero);
     std::cout << lista << '\n';
 
     // maquina de turing
@@ -116,11 +111,11 @@ void addition_function(){
     State L = {(char *) "L", 2};
 
     Instruction *in = (Instruction *) malloc((size_t) sizeof(Instruction) * 5);
-    in[0] = {q0, {uno, 3}, R, q0};
-    in[1] = {q0, {cero, 3}, {uno, 3}, q1};
-    in[2] = {q1, {uno, 3}, R, q1};
-    in[3] = {q1, {cero, 3}, L, q2};
-    in[4] = {q2, {uno, 3}, {cero, 3}, q2};
+    in[0] = {q0, uno, R, q0};
+    in[1] = {q0, cero, uno, q1};
+    in[2] = {q1, uno, R, q1};
+    in[3] = {q1, cero, L, q2};
+    in[4] = {q2, uno, cero, q2};
 
     TuringMachine tm(in, 5, q0);
 

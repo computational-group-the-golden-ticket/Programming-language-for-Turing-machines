@@ -15,13 +15,14 @@
 #define TAB 10
 #define WITH 11
 #define INTEGER 12
+#define PRINT 13
 
 // un token tiene asociado un tipo y un valor, pero el valor es un string
 // por tanto se necesita tambien la longitud de ese string
 struct TOKEN{
     int type;
 
-    int length;
+    int length = 0;
     char *value;
 };
 
@@ -29,9 +30,11 @@ typedef struct TOKEN Token;
 
 // la structura Token tiene un puntero como atributo, esta funcion facilita el proceso de
 // asignacion por copia de valores
-void asignate_token(Token &target, Token source, bool re_asign=false);
+void asignate_token(Token &target, const Token &source, bool re_asign=false);
 
 // para mostrar en token con formato en pantalla
-void show_token(Token token);
+void show_token(Token &token);
+
+void liberate_token_space(Token &token);
 
 #endif

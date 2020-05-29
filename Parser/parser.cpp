@@ -16,7 +16,7 @@ Parser::Parser(char *text, int length):
 }
 
 Parser::~Parser(){
-    free(m_current_token.value);
+    liberate_token_space(m_current_token);
 }
 
 DefinitionStatement Parser::definition_statement(){
@@ -43,7 +43,6 @@ DefinitionStatement Parser::definition_statement(){
         // al terminar el for, m_current_token estara en el siguiente tab
         m_lexer.get_next_token(m_current_token);
 
-        // show_token(m_current_token);
     }
 
     // lista de instrucciones, inicialmente no hay instrucciones
@@ -105,7 +104,7 @@ DefinitionStatement Parser::definition_statement(){
             // se obtiene el siguiente token
             m_lexer.get_next_token(m_current_token);
 
-            // show_token(m_current_token);          
+          
         }
 
         // se agrega la nueva instruccion a la lista
@@ -132,7 +131,7 @@ DefinitionStatement Parser::definition_statement(){
     return def_statement;
 }
 
-void Parser::assignament_statement(Token first_token, Node &node){
+AssignamentStatement Parser::assignament_statement(Token first_token){
     // std::cout << "ASSIGNAMENT STATEMENT" << '\n';
     // esta funcion empieza con el m_current_token con un tipo de ASSIGNAMENT el
     // primer token corresponde al identificador de la variable que se esta creando
@@ -161,7 +160,6 @@ void Parser::assignament_statement(Token first_token, Node &node){
 
         // al terminar el for, m_current_token estara en el siguiente quote
         m_lexer.get_next_token(m_current_token);
-        // show_token(m_current_token);
     }
 
     // inicialmente en la cinta no hay ninguna celda
@@ -264,7 +262,6 @@ Program Parser::parse(){
 
     // el ciclo se ejecuta mientras hayan tokens por procesar
     while (m_current_token.type != EOF_TOKEN){
-        // show_token(m_current_token);
         // en este caso se debe proceder a crear un nodo de tipo DefinitionStatement
         if (m_current_token.type == TURINGMACHINE){
             Node dummy_node = {definition_statement(), {}, {}, DEFINITION_STATEMENT};
@@ -280,7 +277,7 @@ Program Parser::parse(){
 
             // siguiente token en la lista
             m_lexer.get_next_token(m_current_token);
-            // show_token(m_current_token);
+
 
             if (m_current_token.type == ASSIGNAMENT){
                 Node dummy_node = {{}, {}, {}, {}};
@@ -299,7 +296,6 @@ Program Parser::parse(){
             free(identifier.value);
         }
 
-        // show_token(m_current_token);
         m_lexer.get_next_token(m_current_token);
     }
 

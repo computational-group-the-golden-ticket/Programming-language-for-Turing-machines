@@ -35,20 +35,19 @@ Tape::~Tape(){
 // la cinta se va ampliando a medida que se visitan nuevas celdas, con esta funcion
 // se obtiene espacio, a la izquierda si se pasa el parametro LEFT y a la derecha de
 // la cinta si se pasa RIGHT en to
-void Tape::get_space(int length, int to){
+void Tape::get_space(int direction){
     // el espacio a la derecha y a la izquierda se piden de la misma forma, la diferencia
     // es en la asignacion del nuevo valor
-    m_tape = (State *) realloc(m_tape, (size_t) sizeof(State) * length);
-    m_current_length++;
+    m_tape = (State *) realloc(m_tape, (size_t) sizeof(State) * ++m_current_length);
 
     // por defecto realloc deja el arreglo como estaba inicialmente, y el espacio se agrega
     // al final
-    if (to == RIGHT){
+    if (direction == RIGHT){
         // se debe escribir el estado por defecto en la celda agregada al final
         asignate_state(m_tape[m_current_length - 1], m_default_value);
     }
 
-    if (to == LEFT){
+    if (direction == LEFT){
         // cuando el espacio se pide a la derecha se debe correr todo el arreglo una
         // celda a la derecha
         asignate_state(m_tape[m_current_length - 1], m_tape[m_current_length - 2]);
@@ -63,8 +62,8 @@ void Tape::get_space(int length, int to){
 }
 
 // lee el simbolo que esta en la celda actual, el especificado por m_tape_head_position
-State Tape::read_symbol(){
-    return m_tape[m_tape_head_position];
+void Tape::read_symbol(State &output_state, bool re_asign){
+    asignate_state(output_state, m_tape[m_tape_head_position], re_asign);
 }
 
 // escribe es simbolo que se pasa como argumento en la celda actual
@@ -77,7 +76,7 @@ void Tape::move_tape_head_to_right(){
     // si m_tape_head_position es mayor que la longitud actual de la cinta
     // entonces se necesita pedir espacio para la nueva celda en la que estara la mente
     if (m_tape_head_position >= m_current_length - 1){
-        get_space(m_current_length + 1, RIGHT);
+        get_space(RIGHT);
     }
 
     m_tape_head_position++;
@@ -90,7 +89,7 @@ void Tape::move_tape_head_to_left(){
     // si m_tape_head_position es menor que cero entonces se necesita pedir espacio
     // para la nueva celda en la que estara la mente
     if (m_tape_head_position < 0){
-        get_space(m_current_length + 1, LEFT);
+        get_space(LEFT);
 
         m_tape_head_position = 0;
     }
@@ -117,7 +116,7 @@ std::ostream& operator<< (std::ostream &out, const Tape &list){
 
 // la structura State tiene un puntero como atributo, esta funcion facilita el proceso de
 // asignacion por copia de valores
-void asignate_state(State &target, State source, bool re_asign){
+void asignate_state(State &target, State &source, bool re_asign){
     target.length = source.length;
 
     if (re_asign){

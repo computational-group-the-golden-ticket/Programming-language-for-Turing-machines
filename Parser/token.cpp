@@ -5,7 +5,7 @@
 
 // la structura Token tiene un puntero como atributo, esta funcion facilita el proceso de
 // asignacion por copia de valores
-void asignate_token(Token &target, Token source, bool re_asign){
+void asignate_token(Token &target, const Token &source, bool re_asign){
     target.type = source.type;
     target.length = source.length;
 
@@ -14,7 +14,7 @@ void asignate_token(Token &target, Token source, bool re_asign){
     if (re_asign){
         free(target.value);
     }
-    
+
     target.value = (char *) malloc((size_t) sizeof(char) * source.length);
 
     for (int i = 0; i < source.length; i++){
@@ -23,7 +23,7 @@ void asignate_token(Token &target, Token source, bool re_asign){
 }
 
 // para mostrar en token con formato en pantalla
-void show_token(Token token){
+void show_token(Token &token){
     // como se muestre en pantalla depende del tipo de token, pero en todos
     // se imprime el tipo de token y el valor que este almacena
     switch (token.type){
@@ -78,8 +78,16 @@ void show_token(Token token){
         case INTEGER:
             printf("Token(INTEGER, '%s')\n", token.value);
             break;
+
+        case PRINT:
+            printf("Token(PRINT, '%s')\n", token.value);
+            break;
         
         default:
             break;
     }
+}
+
+void liberate_token_space(Token &token){
+    free(token.value);
 }

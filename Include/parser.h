@@ -13,7 +13,7 @@ private:
 
     // funciones que se encargan de descifrar el tipo de estamentos del programa
     DefinitionStatement definition_statement();
-    void assignament_statement(Token firs_token, Node &node);
+    AssignamentStatement assignament_statement(Token firs_token);
     ApplicationStatement application_statement(Token firs_token);
 public:
     Parser(char *text, int length);

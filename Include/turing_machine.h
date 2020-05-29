@@ -32,7 +32,7 @@ private:
 
     // numero de instrucciones e instrucciones de la maquina de turing
     int m_number_of_instructions;
-    Instruction *m_instructions;  // este puntero debe ser eliminado con free
+    Instruction *m_instructions;
 
     // diccionario que guarda la informacion de la posicion de una instruccion en el
     // arreglo de instrucciones dado que se conoce el estado de la mente y el estado
@@ -43,9 +43,6 @@ private:
     // este metodo inicializa el diccionario de instrucciones dado que ya se inicializo
     // la lista de instrucciones
     void initialize_map();
-
-    // esto libera el espacio usado para almacenar el simbolo de cada atributo de la instruccion
-    void liberate_instruction_space(Instruction &instruction);
 public:
     // para crear una maquina de turing solo se necesita pasar como argumento la lista
     // de instrucciones, la cantidad de estas y un estado inicial de la mente
@@ -59,5 +56,5 @@ public:
 // la structura Instruction tiene estructuras State como valores,
 // esta funcion facilita el proceso de asignacion por copia de valores
 void asignate_instruction(Instruction &target, Instruction &source, bool re_asign=false);
-
+void liberate_instruction_space(Instruction &instruction);
 #endif

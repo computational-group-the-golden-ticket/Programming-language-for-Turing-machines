@@ -1,15 +1,13 @@
 CC = g++
-CFLAGS = -g -Wall -Wextra -Werror
+CFLAGS = -g -Wall -Wextra
 INCLUDE = -I./Include
 
 TAPELIBRARIE = tape.o
-
 TAPEOBJECTS = \
 	tape.o \
 	tape_use_cases.o
 
 TURINGMACHINELIBRARIE = turing_machine.o
-
 TURINGMACHINEOBJECTS = \
 	turing_machine.o \
 	turing_machine_use_cases.o
@@ -18,12 +16,14 @@ READLIBRARIE = read_code.o
 TOKENLIBRARIE = token.o
 
 LEXERLIBRARIE = lexer.o
-
 LEXEROBJECTS = \
 	lexer.o \
 	lexer_use_cases.o
 
 ASTLIBRARIE = ast.o
+ASTOBJECTS = \
+	ast.o \
+	ast_use_cases.o
 
 PARSEROBJECTS = \
 	parser.o \
@@ -75,10 +75,18 @@ LexerUseCases: ReadLibrarie TokenLibrarie LexerObjectFiles
 	$(CC) $(CFLAGS) $(READLIBRARIE) $(TOKENLIBRARIE) $(LEXEROBJECTS) -o lexer_use_cases
 	$(MAKE) clean_object_files
 
-# para testear la funcionalidad del modulo parser
+# para testear la funcionalidad del modulo ast
 AstLibrarie:
 	$(CC) $(INCLUDE) $(CFLAGS) -c Parser/ast.cpp -o ast.o
 
+AstObjects: AstLibrarie
+	$(CC) $(INCLUDE) $(CFLAGS) -c UseCases/ast_use_cases.cpp -o ast_use_cases.o
+
+AstUseCases: TapeLibrarie TuringMachineLibrarie TokenLibrarie AstObjects
+	$(CC) $(CFLAGS) $(TAPELIBRARIE) $(TURINGMACHINELIBRARIE) \
+		$(TOKENLIBRARIE) $(ASTOBJECTS) -o ast_use_cases
+
+# para testear la funcionalidad del modulo parser
 ParserLibrarie:
 	$(CC) $(INCLUDE) $(CFLAGS) -c Parser/parser.cpp -o parser.o
 

@@ -3,8 +3,6 @@
 #include "token.h"
 #include "lexer.h"
 
-#define MALLOC_CHECK_ 2
-
 // la clase solo necesita informacion del texto, es decir el texto como tal y la longitud
 Lexer::Lexer(char *text, int length):
         m_length{length}, m_position{0}, m_in_quote{false} {
@@ -56,11 +54,13 @@ int Lexer::keyword(char *string, int length){
     // TuringMachine o a with
     const char turing_machine_key_word[] = "TuringMachine";
     const char with_keyword[] = "with";
+    const char print_keyword[] = "PRINT";
 
-    // with tiene longitud 4
-    if (length < 5){
+    // with tiene longitud 4, pero el string se recibe con la longitud
+    // necesaria para guardar el caracter de terminacion
+    if (length == 5){
         bool it_broke = false;
-        for (int i = 0; i < length; i++){
+        for (int i = 0; i < 4; i++){
             if (with_keyword[i] != string[i]){
                 it_broke = true;
                 break;
@@ -73,10 +73,11 @@ int Lexer::keyword(char *string, int length){
         }
     }
     
-    // TuringMachine tiene longitud 13
-    if(length < 14){
+    // TuringMachine tiene longitud 13, pero el string se recibe con la longitud
+    // necesaria para guardar el caracter de terminacion
+    if(length == 14){
         bool it_broke = false;
-        for (int i = 0; i < length; i++){
+        for (int i = 0; i < 13; i++){
             if (turing_machine_key_word[i] != string[i]){
                 it_broke = true;
                 break;
@@ -89,6 +90,23 @@ int Lexer::keyword(char *string, int length){
         }
     }
 
+    // with tiene longitud 5, pero el string se recibe con la longitud
+    // necesaria para guardar el caracter de terminacion
+    if (length == 6){
+        bool it_broke = false;
+        for (int i = 0; i < 5; i++){
+            if (print_keyword[i] != string[i]){
+                it_broke = true;
+                break;
+            }
+        }
+
+        if (!it_broke){
+            // si el ciclo no se rompe es porque es igual componente a componente
+            return PRINT;
+        }
+    }
+
     return 0;
 }
 
@@ -98,13 +116,12 @@ void Lexer::scape_whitespace(){
     }
 }
 
-Token Lexer::eat_single_char(char symbol, Token &output_token){
+void Lexer::eat_single_char(char symbol, Token &output_token, bool re_asign){
     // como se esta consumiendo un caracter del texto se debe pasar al siguiente
     m_position++;
 
     // cada caracter arroja un tipo de token diferente
     // se hace conversion a (char *) porque "" tiene tipo const (char *)
-    Token token = {};
     Token dummy_token = {};
 
     switch (symbol){
@@ -144,35 +161,38 @@ Token Lexer::eat_single_char(char symbol, Token &output_token){
             break;
     }
 
-    asignate_token(output_token, dummy_token, true);
-
-    return token;
+    asignate_token(output_token, dummy_token, re_asign);
 }
 
-Token Lexer::eat_string(Token &output_token){
+void Lexer::eat_string(Token &output_token, bool re_asign){
+    // variable que guardad la longitud del string
     int current_length = 1;
+
+    // se empieza con longitud para un solo caracter
     char *value = (char *) malloc((size_t) sizeof(char) * current_length);
 
+    // se consume el caracter actual y se avanza la posicion
     value[current_length++ - 1] = m_text[m_position++];
     while (m_text[m_position] != '"'){
+        // se pide espacio para almacenar un caracter mas y se aumenta en uno
+        // la longitud del string
         value = (char *) realloc(value, (size_t) sizeof(char) * current_length);
 
+        // se consume un caracter y se avanza la posicion
         value[current_length++ - 1] = m_text[m_position++];
     }
 
+    // se agrega el caracter de terminacion de string
     value = (char *) realloc(value, (size_t) sizeof(char) * current_length);
     value[current_length - 1] = '\0';
 
-    Token token = {};
-    Token dummy_token = {STRING, current_length - 1, value};
+    Token dummy_token = {STRING, current_length, value};
     
-    asignate_token(output_token, dummy_token, true);
-    free(dummy_token.value);
-
-    return token;
+    asignate_token(output_token, dummy_token, re_asign);
+    liberate_token_space(dummy_token);
 }
 
-Token Lexer::eat_identifier(Token &output_token){
+void Lexer::eat_identifier(Token &output_token, bool re_asign){
     int current_length = 1;
     char *value = (char *) malloc((size_t) sizeof(char) * current_length);
 
@@ -186,25 +206,20 @@ Token Lexer::eat_identifier(Token &output_token){
     value = (char *) realloc(value, (size_t) sizeof(char) * current_length);
     value[current_length - 1] = '\0';
 
-    int token_id = keyword(value, current_length - 1);
-
-    Token token = {};
+    int token_id = keyword(value, current_length);
 
     Token dummy_token = {};
     if(token_id){
-        dummy_token = Token {token_id, current_length - 1, value};
+        dummy_token = Token {token_id, current_length, value};
     } else {
-        dummy_token = {IDENTIFIER, current_length - 1, value};
+        dummy_token = Token {IDENTIFIER, current_length, value};
     }
 
-    asignate_token(output_token, dummy_token, true);
-
-    free(dummy_token.value);
-
-    return token;
+    asignate_token(output_token, dummy_token, re_asign);
+    liberate_token_space(dummy_token);
 }
 
-Token Lexer::eat_integer(Token &output_token){
+void Lexer::eat_integer(Token &output_token, bool re_asign){
     int current_length = 1;
     char *value = (char *) malloc((size_t) sizeof(char) * current_length);
 
@@ -219,50 +234,47 @@ Token Lexer::eat_integer(Token &output_token){
 
     value[current_length - 1] = '\0';
 
-    Token token = {};
-    Token dummy_token = {INTEGER, current_length - 1, value};
+    Token dummy_token = {INTEGER, current_length, value};
     
-    asignate_token(output_token, dummy_token, true);
-    free(dummy_token.value);
-
-    return token;
+    asignate_token(output_token, dummy_token, re_asign);
+    liberate_token_space(dummy_token);
 }
 
 // este metodo retorna el siguiente token
-Token Lexer::get_next_token(Token &output_token){
+void Lexer::get_next_token(Token &output_token, bool re_asign){
     // para obtener el token se va iterando sobre todos los caracteres
     // y se consume el token adecuado de acuerdo al valor del caracter actual
-    while (m_position < m_length){
+    while (m_position < m_length && m_text[m_position] != '\0'){
         if (is_current_char_whitespace()){
             scape_whitespace();
         }
 
         if (m_text[m_position] == '('){
-            return eat_single_char('(', output_token);
+            return eat_single_char('(', output_token, re_asign);
         }
 
         if (m_text[m_position] == ')'){
-            return eat_single_char(')', output_token);
+            return eat_single_char(')', output_token, re_asign);
         }
 
         if (m_text[m_position] == '"'){
-            return eat_single_char('"', output_token);
+            return eat_single_char('"', output_token, re_asign);
         }
 
         if (m_text[m_position] == ':'){
-            return eat_single_char(':', output_token);
+            return eat_single_char(':', output_token, re_asign);
         }
 
         if (m_text[m_position] == '='){
-            return eat_single_char('=', output_token);
+            return eat_single_char('=', output_token, re_asign);
         }
     
         if(m_text[m_position] == '\n'){
-            return eat_single_char('\n', output_token);
+            return eat_single_char('\n', output_token, re_asign);
         }
 
         if(m_text[m_position] == '\t'){
-            return eat_single_char('\t', output_token);
+            return eat_single_char('\t', output_token, re_asign);
         }
 
         if(!m_in_quote){
@@ -272,20 +284,18 @@ Token Lexer::get_next_token(Token &output_token){
             // corresponde a un numero entero a algun identificador
             if (is_current_char_digit()){
 
-                return eat_integer(output_token);
+                return eat_integer(output_token, re_asign);
             }
 
             if (is_current_char_identifier_character()){
-                return eat_identifier(output_token);
+                return eat_identifier(output_token, re_asign);
             }
         }else{
-            return eat_string(output_token);
+            return eat_string(output_token, re_asign);
         }
     }
 
     Token dummy_token = Token {EOF_TOKEN, 10, (char *) "EOF_TOKEN"};
     
-    asignate_token(output_token, dummy_token, true);
-
-    return dummy_token;
+    asignate_token(output_token, dummy_token, re_asign);
 }
