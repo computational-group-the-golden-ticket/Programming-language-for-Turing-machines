@@ -4,16 +4,8 @@
 #include <cstring>
 #include <map>
 
+#include "types.h"
 #include "tape.h"
-
-// esto representa una instruccion en una maquina de turing, se esta usando la notacion
-// en cuadruplas
-struct {
-    State current_mind_state;
-    State cell_state;
-    State action;
-    State next_mind_state;
-} typedef Instruction;
 
 // esta funcion  es necesaria para que el diccionario cuyas claves son char* pueda realizar
 // busquedas por comparacion del valor y no de la direccion
@@ -22,7 +14,6 @@ struct cmp_str{
         return std::strcmp(a, b) < 0;
     }
 };
-
 
 // representa una maquina de turing
 class TuringMachine{
@@ -53,8 +44,4 @@ public:
     void compute(Tape &list);
 };
 
-// la structura Instruction tiene estructuras State como valores,
-// esta funcion facilita el proceso de asignacion por copia de valores
-void asignate_instruction(Instruction &target, Instruction &source, bool re_asign=false);
-void liberate_instruction_space(Instruction &instruction);
 #endif

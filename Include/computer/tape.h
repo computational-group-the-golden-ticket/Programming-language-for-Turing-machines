@@ -3,19 +3,7 @@
 
 #include <iostream>
 
-// direcciones en las que se puede mover la mente en la cinta
-#define LEFT 0
-#define RIGHT 1
-
-// esto representa o un estado de la mente o un estado de una celda en una
-// maquina de turing
-struct {
-    char *symbol;
-    // la longitud debe ser tal que en symbol se almacena el valor como tal
-    // y el caracter de terminacion del string que se guarda
-    int length;
-} typedef State;
-
+#include "types.h"
 
 // representacion de una cinta en una maquina de turing
 class Tape {
@@ -56,10 +44,5 @@ public:
     // para imprimir la cinta con formato
     friend std::ostream& operator<< (std::ostream &out, const Tape &list);
 };
-
-// la structura State tiene un puntero como atributo, esta funcion facilita el proceso de
-// asignacion por copia de valores
-void asignate_state(State &target, State &source, bool re_asign=false);
-void liberate_state_space(State &target);
 
 #endif

@@ -113,24 +113,3 @@ std::ostream& operator<< (std::ostream &out, const Tape &list){
 
     return out;
 }
-
-// la structura State tiene un puntero como atributo, esta funcion facilita el proceso de
-// asignacion por copia de valores
-void asignate_state(State &target, State &source, bool re_asign){
-    target.length = source.length;
-
-    if (re_asign){
-        free(target.symbol);
-    }
-
-    // este espacio debe ser liberado con free luego que la ejecucion del programa acabe
-    target.symbol = (char *) malloc((size_t) sizeof(char) * target.length);
-
-    for (int i = 0; i < target.length; i++){
-        target.symbol[i] = source.symbol[i];
-    }
-}
-
-void liberate_state_space(State &state){
-    free(state.symbol);
-}

@@ -8,6 +8,7 @@ void use_case_1();
 void use_case_2();
 
 int main(){
+    // use_case_1();
     use_case_2();
 
     return 0;
@@ -38,7 +39,7 @@ void use_case_1(){
 void use_case_2(){
     char *code;
 
-    int length = read_code("programs/example_program_1.tm", code);
+    int length = read_code("../programs/example_program_1.tm", code);
     std::cout << code << '\n';
 
 

@@ -1,7 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
-#include "turing_machine.h"
+#include "types.h"
 #include "token.h"
 
 // hay 3 tipos de nodos, declarament statement(para creacion de maquinas de turing)
@@ -10,30 +10,13 @@
 // "PRINT tape_identifier" se considera como un application statement donde se tiene
 // una maquina de turing que escribe a la memorio de la pantalla
 
-// especifica el tipo de nodo
+// especifica el tipo de nodo en el AST
+#define NULL_NODE -1
 #define DEFINITION_STATEMENT 0
 #define ASSIGNAMENT_STATEMENT 1
 #define APPLICATION_STATEMENT 2
 
-struct NODE;
-typedef struct NODE Node;
-
-// Es la raiz del arbol y representa a todo el programa
-class Program {
-private:
-    // numero y arreglo con los nodos del arbol
-    int m_current_length;
-    Node *m_nodes;
-
-    // para hacer mas grande la lista m_nodes
-    void get_space();
-public:
-    Program();
-    ~Program();
-
-    // esta funcion agrega un nodo al programa
-    void add_node(Node node);
-};
+struct Node;
 
 // tiene la informacion necesaria para simular una maquina de turing
 class DefinitionStatement {
@@ -59,6 +42,8 @@ public:
     DefinitionStatement(Instruction *instructions, int length, Token turing_machine_identifier);
     ~DefinitionStatement();
 
+    void liberate_memory();
+
     // se esta haciendo uso del operador de asignacion
     DefinitionStatement& operator=(const DefinitionStatement& definition_statement);
 };
@@ -76,12 +61,10 @@ private:
 
     // una cinta se puede crear desde una aplicacion de funcion, esto guarda el nodo
     // asociado a una posible aplicacion de funcion
-    Node *m_node;
+    struct Node *m_node;
 
     // indica si a la variable m_node se le ha asignado algun valor
     bool m_has_node;
-
-    void liberate_memory();
 public:
     // un nodo en el arbol que representa a el programa se define como una estructura con
     // campos para datos de tipo: DefinitionStatement, AssignamentStatement y ApplicationStatement
@@ -105,8 +88,10 @@ public:
     // se esta haciendo uso del operador de asignacion
     AssignamentStatement& operator=(const AssignamentStatement& assignament_statement);
 
+    void liberate_memory();
+
     // este metodo agrega un nodo al programa
-    void add_node(Node &node);
+    void add_node(const struct Node &node);
 
     // este metodo retorna true si este nodo tiene un nodo hijo
     bool has_node();
@@ -124,12 +109,10 @@ private:
 
     // la aplicacion de funcion se hace sobre una cinta, pero esta cinta puede venir de
     // otra cinta
-    Node *m_node;
+    struct Node *m_node;
 
     // indica si a la variable m_node se le ha asignado algun valor
     bool m_has_node;
-
-    void liberate_memory();
 public:
     // un nodo en el arbol que representa a el programa se define como una estructura con
     // campos para datos de tipo: DefinitionStatement, AssignamentStatement y ApplicationStatement
@@ -152,21 +135,42 @@ public:
     // se esta haciendo uso del operador de asignacion
     ApplicationStatement& operator=(const ApplicationStatement& application_statement);
 
+    void liberate_memory();
+
     // esta funcion agrega un nodo al programa
-    void add_node(Node node);
+    void add_node(struct Node &node);
 
     // esta funcion retorna true si este nodo tiene un nodo hijo
     bool has_node();
 };
 
-struct NODE {
+
+// Es la raiz del arbol y representa a todo el programa
+class Program {
+private:
+    // numero y arreglo con los nodos del arbol
+    int m_current_length;
+    struct Node *m_nodes;
+
+    // para hacer mas grande la lista m_nodes
+    void get_space();
+public:
+    Program();
+    ~Program();
+
+    // esta funcion agrega un nodo al programa
+    void add_node(struct Node &node);
+};
+
+
+struct Node {
     // en esta estructura uno y solo uno de estos campos guarda informacion
     DefinitionStatement definition_statement;
     AssignamentStatement assignament_statement;
     ApplicationStatement application_statement;
 
     // indica el tipo del campo que guarga la informacion
-    int type;
+    int type = NULL_NODE;
 };
 
 // para facilitar la asignacion de estructuras por copia de valores

@@ -1,5 +1,6 @@
 #include <cstdlib>
 
+#include "types.h"
 #include "tape.h"
 #include "turing_machine.h"
 
@@ -88,21 +89,4 @@ void TuringMachine::compute(Tape &list){
     }
 
     liberate_state_space(dummy_state);
-}
-
-// la structura Instruction tiene estructuras State como valores,
-// esta funcion facilita el proceso de asignacion por copia de valores
-void asignate_instruction(Instruction &target, Instruction &source, bool re_asign){
-    // asignar una instruccion corresponde a asignar componente a componente
-    asignate_state(target.current_mind_state, source.current_mind_state, re_asign);
-    asignate_state(target.cell_state, source.cell_state, re_asign);
-    asignate_state(target.action, source.action, re_asign);
-    asignate_state(target.next_mind_state, source.next_mind_state, re_asign);
-}
-
-void liberate_instruction_space(Instruction &instruction){
-    free(instruction.current_mind_state.symbol);
-    free(instruction.cell_state.symbol);
-    free(instruction.action.symbol);
-    free(instruction.next_mind_state.symbol);
 }

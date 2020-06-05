@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstdio>
 
 #include "token.h"
 #include "lexer.h"
@@ -244,7 +245,7 @@ void Lexer::eat_integer(Token &output_token, bool re_asign){
 void Lexer::get_next_token(Token &output_token, bool re_asign){
     // para obtener el token se va iterando sobre todos los caracteres
     // y se consume el token adecuado de acuerdo al valor del caracter actual
-    while (m_position < m_length && m_text[m_position] != '\0'){
+    while (m_position < m_length && m_text[m_position] != '\0' && m_text[m_position] != EOF){
         if (is_current_char_whitespace()){
             scape_whitespace();
         }

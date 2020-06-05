@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-
 #include "read_code.h"
 
 int get_number_of_characters(const char *filename){

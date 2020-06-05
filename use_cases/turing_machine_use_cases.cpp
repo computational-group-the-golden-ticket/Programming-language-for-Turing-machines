@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "types.h"
 #include "tape.h"
 #include "turing_machine.h"
 

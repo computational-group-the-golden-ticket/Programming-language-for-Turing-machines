@@ -23,7 +23,7 @@ struct TOKEN{
     int type;
 
     int length = 0;
-    char *value;
+    char *value = nullptr;
 };
 
 typedef struct TOKEN Token;
