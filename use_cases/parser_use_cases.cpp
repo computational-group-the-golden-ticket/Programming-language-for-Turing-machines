@@ -15,12 +15,10 @@ int main(){
 void test1(){
     // se lee el codigo del archivo de texto
     // std::cout << "====================================" << '\n';
-    char filename[] = "programs/example_program2.tm";
+    char filename[] = "../programs/example_program_2.tm";
 
-    int length = get_number_of_characters(filename);
-
-    char *output_string = (char *) malloc((size_t) sizeof(char) * length);
-    read_code(filename, output_string);
+    char *output_string;
+    int length = read_code(filename, output_string);
 
     // std::cout << output_string;
 
@@ -42,9 +40,13 @@ void test1(){
 
     // se crea el parser
     Parser parser = Parser(output_string, length);
+    
+    for (int i = 0; i < 5; i++){
+        Node node = parser.get_next_node();
+        // parser.get_next_node();
 
-    // std::cout << "====================================" << '\n';
-    parser.parse();
+        std::cout << node << '\n';
+    }
 
     free(output_string);
 }

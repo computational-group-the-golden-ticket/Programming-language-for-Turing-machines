@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-// direcciones en las que se puede mover la mente en la cinta
+// direcciones en las que se puede mover el puntero de lectura/escritura
 #define LEFT 0
 #define RIGHT 1
 
@@ -10,12 +10,13 @@
 struct {
     char *symbol;
     // la longitud debe ser tal que en symbol se almacena el valor como tal
-    // y el caracter de terminacion del string que se guarda
+    // y el caracter de terminacion del string ('\0')
     int length;
 } typedef State;
 
 // esto representa una instruccion en una maquina de turing, se esta usando la notacion
-// en cuadruplas
+// en cuadruplas. "qi sj A qk", donde 'qi' es el estado actual de la mente, 'sj' es el
+// estado de la celda actual, 'A' es la accion a realizar y 'qk' es el nuevo estado de la mente
 struct {
     State current_mind_state;
     State cell_state;

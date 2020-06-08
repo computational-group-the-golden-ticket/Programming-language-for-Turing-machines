@@ -12,6 +12,7 @@ TURINGMACHINELIBRARIE = turing_machine.o
 TOKENLIBRARIE = token.o
 LEXERLIBRARIE = lexer.o
 ASTLIBRARIE = ast.o
+PARSERLIBRARIE = parser.o
 
 #librerias
 ReadLibrarie:
@@ -35,6 +36,9 @@ LexerLibrarie:
 AstLibrarie:
 	$(CC) $(INCLUDE) $(CFLAGS) -c ../parser/ast.cpp -o ast.o
 
+ParserLibrarie:
+	$(CC) $(INCLUDE) $(CFLAGS) -c ../parser/parser.cpp -o parser.o
+
 # casos de uso
 TapeUseCases: TypesLibrarie TapeLibrarie
 	$(CC) $(INCLUDE) $(CFLAGS) -c tape_use_cases.cpp -o tape_use_cases.o
@@ -54,6 +58,11 @@ LexerUseCases: ReadLibrarie TokenLibrarie LexerLibrarie
 AstUseCases: TypesLibrarie TokenLibrarie AstLibrarie
 	$(CC) $(INCLUDE) $(CFLAGS) -c ast_use_cases.cpp -o ast_use_cases.o
 	$(CC) $(CFLAGS) $(TYPESLIBRARIE) $(TOKENLIBRARIE) $(ASTLIBRARIE) ast_use_cases.o -o ast_use_cases
+	$(MAKE) clean_object_files
+
+ParserUseCases: ReadLibrarie TypesLibrarie TokenLibrarie LexerLibrarie AstLibrarie ParserLibrarie
+	$(CC) $(INCLUDE) $(CFLAGS) -c parser_use_cases.cpp -o parser_use_cases.o
+	$(CC) $(CFLAGS) $(READLIBRARIE) $(TYPESLIBRARIE) $(TOKENLIBRARIE) $(LEXERLIBRARIE) $(ASTLIBRARIE) $(PARSERLIBRARIE) parser_use_cases.o -o parser_use_cases
 	$(MAKE) clean_object_files
 
 clean_object_files:

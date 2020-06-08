@@ -55,7 +55,10 @@ int Lexer::keyword(char *string, int length){
     // TuringMachine o a with
     const char turing_machine_key_word[] = "TuringMachine";
     const char with_keyword[] = "with";
-    const char print_keyword[] = "PRINT";
+
+    // se debe decidir si algunas funciones estandar son palabras claves o funciones como tal
+    // const char print_keyword[] = "PRINT";
+    const char print_keyword[] = "NNOTT";  // solo es informacion basura
 
     // with tiene longitud 4, pero el string se recibe con la longitud
     // necesaria para guardar el caracter de terminacion

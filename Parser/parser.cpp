@@ -1,7 +1,7 @@
 #include <cstdlib>
+#include <cstdio>
 
-#include "tape.h"
-#include "turing_machine.h"
+#include "types.h"
 #include "token.h"
 #include "lexer.h"
 #include "ast.h"
@@ -20,7 +20,6 @@ Parser::~Parser(){
 }
 
 DefinitionStatement Parser::definition_statement(){
-    // std::cout << "DEFINITION STATEMENT" << '\n';
     // en el definition statement antes de indicar las instrucciones, va la cabecera del
     // estamento, que tiene la forma: TuringMachine machine_name:
     int expected_introduction_tokens[] = {TURINGMACHINE, IDENTIFIER, TWOPOINTS, NEWLINE};
@@ -41,8 +40,7 @@ DefinitionStatement Parser::definition_statement(){
         }
 
         // al terminar el for, m_current_token estara en el siguiente tab
-        m_lexer.get_next_token(m_current_token);
-
+        m_lexer.get_next_token(m_current_token, true);
     }
 
     // lista de instrucciones, inicialmente no hay instrucciones
@@ -62,7 +60,7 @@ DefinitionStatement Parser::definition_statement(){
     bool in_statement = true;
     while (in_statement){
         // en cada iteracion del ciclo while se agrega una instruccion nueva
-        instructions = (Instruction *) malloc((size_t) sizeof(Instruction) * (++length));
+        instructions = (Instruction *) realloc(instructions, (size_t) sizeof(Instruction) * (++length));
 
         // esta variable almacenara el valor de la nueva instruccion a agregar
         Instruction instruction;
@@ -102,13 +100,12 @@ DefinitionStatement Parser::definition_statement(){
             }
 
             // se obtiene el siguiente token
-            m_lexer.get_next_token(m_current_token);
-
-          
+            m_lexer.get_next_token(m_current_token, true);
         }
 
         // se agrega la nueva instruccion a la lista
         asignate_instruction(instructions[length - 1], instruction);
+        liberate_instruction_space(instruction);
 
         // si el siguiente token es diferente de TAB es porque se esta iniciando
         // nuevo tipo de estamento
@@ -121,18 +118,16 @@ DefinitionStatement Parser::definition_statement(){
 
     // se libera el espacio de las instrucciones
     for (int i = 0; i < length; i++){
-        def_statement.liberate_instruction_space(instructions[i]);
+        liberate_instruction_space(instructions[i]);
     }
 
     free(instructions);
-    free(identifier_token.value);
+    liberate_token_space(identifier_token);
 
-    // std::cout << "DEFINITION STATEMENT" << '\n';
     return def_statement;
 }
 
-AssignamentStatement Parser::assignament_statement(Token first_token){
-    // std::cout << "ASSIGNAMENT STATEMENT" << '\n';
+AssignamentStatement Parser::assignament_statement(Token &identifier){
     // esta funcion empieza con el m_current_token con un tipo de ASSIGNAMENT el
     // primer token corresponde al identificador de la variable que se esta creando
     int expected_introduction_tokens[] = {ASSIGNAMENT, LPAREN};
@@ -145,26 +140,41 @@ AssignamentStatement Parser::assignament_statement(Token first_token){
             // o puede ser el resultado de aplicar una maquina de turing a una cinta ya creada
             // si en vez de LPAREN se encuentra con un token de tipo IDENTIFIER entonces se
             // tiene un statement de aplicacion
-            if (i == 1 && expected_introduction_tokens[i] == IDENTIFIER){
-                AssignamentStatement assign_statement(first_token);
+            if (i == 1 && m_current_token.type == IDENTIFIER){
+                // la asignacion puede hacerse desde una aplicacion de funcion o desde
+                // un identificador de una cinta
+                Token dummy_identifier = {};
+                asignate_token(dummy_identifier, m_current_token);
 
-                Node node = {{}, {}, application_statement(m_current_token), APPLICATION_STATEMENT};
+                // si el siguiente token es distinto a un identificador, entonces la asignacion no
+                // es desde una aplicacion de funcion
+                m_lexer.get_next_token(m_current_token, true);
 
+                if(m_current_token.type != IDENTIFIER){
+                    // TODO: este caso debe ser implementado
+                }
+
+                AssignamentStatement assign_statement(identifier);
+
+                Node node = {{}, {}, application_statement(dummy_identifier), APPLICATION_STATEMENT};
+
+                // printf("EVALUACION\n");
                 assign_statement.add_node(node);
 
-                // return assign_statement;
+                liberate_token_space(dummy_identifier);
+
+                return assign_statement;
             }
 
             // TODO: agregar excepciones en caso de error
         }
 
         // al terminar el for, m_current_token estara en el siguiente quote
-        m_lexer.get_next_token(m_current_token);
+        m_lexer.get_next_token(m_current_token, true);
     }
 
     // inicialmente en la cinta no hay ninguna celda
     State *initial_tape_state = (State *) malloc((size_t) sizeof(State) * 0);
-
 
     // este es el formato en el que se pasan los estados de la cinta
     int expected_body_tokens[] = {QUOTE, STRING, QUOTE};
@@ -182,7 +192,7 @@ AssignamentStatement Parser::assignament_statement(Token first_token){
         for (int i = 0; i < 3; i++){
             // si algun token difiere se debe lanzar una excepcion
             if (m_current_token.type != expected_body_tokens[i]){
-                // TODO: manejar exepciones
+                // TODO: manejar excepciones
             }
 
             // esto token es el que guarda la informacion del estado
@@ -194,39 +204,44 @@ AssignamentStatement Parser::assignament_statement(Token first_token){
             }
 
             // se obtiene el siguiente token
-            m_lexer.get_next_token(m_current_token);
+            m_lexer.get_next_token(m_current_token, true);
         }
 
         // esto indica que ya se leyeron todos los estados iniciales de la lista
         if (m_current_token.type == RPAREN){
             in_statement = false;
+
+            // se obtiene el siguiente token, se espera que sea un NEWLINE
+            m_lexer.get_next_token(m_current_token, true);
+
+            if (m_current_token.type != NEWLINE){
+                // TODO: manejar excepciones
+            } 
         }
     }
-    
-    node = {{}, AssignamentStatement(initial_tape_state, length, first_token), {}, ASSIGNAMENT_STATEMENT};
+
+    AssignamentStatement assign_statement(initial_tape_state, length, identifier);
 
     // se libera la memoria utilizada
     for (int i = 0; i < length; i++){
         free(initial_tape_state[i].symbol);
     }
-    
+
     free(initial_tape_state);
 
-    // std::cout << "ASSIGNAMENT STATEMENT" << '\n';
-    // return assign_statement;
+    return assign_statement;
 }
 
-ApplicationStatement Parser::application_statement(Token first_token){
-    // std::cout << "APPLICATION STATEMENT" << '\n';
-    // first token debe corresponder con el identificador de una maquina de turing
+ApplicationStatement Parser::application_statement(Token &identifier){
+    // identifier token debe corresponder con el identificador de una maquina de turing
 
-    // este guarda la variable del siguiente token
+    // este guardara el valor del siguiente token
     Token dummy_identifier;
 
     // se obtiene el siguiente token, que bien puede ser el identificador de una cinta
     // o de una maquina de turing(si el siguiente a este tambien es un token de tipo
     // IDENTIFIER)
-    m_lexer.get_next_token(m_current_token);
+    m_lexer.get_next_token(m_current_token, true);
 
     if(m_current_token.type != IDENTIFIER){
         // TODO: manejar excepciones
@@ -235,7 +250,7 @@ ApplicationStatement Parser::application_statement(Token first_token){
     asignate_token(dummy_identifier, m_current_token);
 
     // se avanza al siguiente token, se necesita saber si el proceso de aplicacion continua
-    m_lexer.get_next_token(m_current_token);
+    m_lexer.get_next_token(m_current_token, true);
 
     // la precedencia mas alta es la de aplicacion de una maquina de turing,
     // se asocia por izquierda, entonces si se tiene algo de este estilo:
@@ -243,31 +258,37 @@ ApplicationStatement Parser::application_statement(Token first_token){
     // machine1 (machine2 (machine3 cinta1)), entonces se debe leer mientras
     // el current_token sea de tipo IDENTIFIER
     if (m_current_token.type == IDENTIFIER){
-        ApplicationStatement appli_statement(first_token);
+        ApplicationStatement appli_statement(identifier);
 
         Node node = {{}, {}, application_statement(dummy_identifier), APPLICATION_STATEMENT};
 
         appli_statement.add_node(node);
 
         return appli_statement;
+    }else{
+        // TODO: se deben implementaro los demas casos(en los que se usa la palabra clave with)
     }
 
-    // std::cout << "APPLICATION STATEMENT" << '\n';
-    return ApplicationStatement(first_token, dummy_identifier);
+    // el ultimo token debe ser de tipo NEWLINE
+    if (m_current_token.type != NEWLINE){
+        // TODO: manejar excepciones
+    }
+
+    ApplicationStatement appli_statement(identifier, dummy_identifier);
+
+    liberate_token_space(dummy_identifier);
+
+    return appli_statement;
 }
 
-Program Parser::parse(){
-    // nodo raiz del programa
-    Program program = Program();
-
+Node Parser::get_next_node(){
     // el ciclo se ejecuta mientras hayan tokens por procesar
     while (m_current_token.type != EOF_TOKEN){
         // en este caso se debe proceder a crear un nodo de tipo DefinitionStatement
         if (m_current_token.type == TURINGMACHINE){
-            Node dummy_node = {definition_statement(), {}, {}, DEFINITION_STATEMENT};
+            Node node = {definition_statement(), {}, {}, DEFINITION_STATEMENT};
 
-            // se agrega el nodo al programa
-            program.add_node(dummy_node);
+            return node;
         }
 
         if (m_current_token.type == IDENTIFIER){
@@ -275,29 +296,30 @@ Program Parser::parse(){
             Token identifier = {};
             asignate_token(identifier, m_current_token);
 
-            // siguiente token en la lista
-            m_lexer.get_next_token(m_current_token);
-
+            // siguiente token en la lista, para identificar en que tipo de estamento se esta
+            m_lexer.get_next_token(m_current_token, true);
 
             if (m_current_token.type == ASSIGNAMENT){
-                Node dummy_node = {{}, {}, {}, {}};
+                Node node = {{}, assignament_statement(identifier), {}, ASSIGNAMENT_STATEMENT};
 
-                assignament_statement(identifier, dummy_node);
+                liberate_token_space(identifier);
 
-                program.add_node(dummy_node);
+                return node;
             }else if(m_current_token.type == IDENTIFIER){
-                Node dummy_node = {{}, {}, application_statement(identifier), APPLICATION_STATEMENT};
+                Node node = {{}, {}, application_statement(identifier), APPLICATION_STATEMENT};
 
-                program.add_node(dummy_node);
+                liberate_token_space(identifier);
+
+                return node;
             }else{
                 // TODO: se debe manejar exepciones
             }
 
-            free(identifier.value);
+            liberate_token_space(identifier);
         }
 
-        m_lexer.get_next_token(m_current_token);
+        m_lexer.get_next_token(m_current_token, true);
     }
 
-    return program;
+    return Node {};
 }

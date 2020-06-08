@@ -8,7 +8,7 @@
 // representacion de una cinta en una maquina de turing
 class Tape {
 private:
-    // posicion de la mente en la cinta
+    // posicion del puntero de lectura/escritura en la cinta
     int m_tape_head_position;
     // longitud de la cinta(longitud visible) en algun paso
     int m_current_length;
@@ -21,7 +21,7 @@ private:
 
     // la cinta se va ampliando a medida que se visitan nuevas celdas, con esta funcion
     // se obtiene espacio, a la izquierda si se pasa el parametro LEFT o a la derecha de
-    // la cinta si se pasa RIGHT en to
+    // la cinta si se pasa RIGHT
     void get_space(int direction);
 public:
     // la cinta se crea pasando una configuracion inicial de esta por medio del parametro

@@ -1,6 +1,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include <iostream>
+
 #include "types.h"
 #include "token.h"
 
@@ -59,6 +61,10 @@ private:
     // token con la informacion del nombre de la cinta
     Token m_tape_identifier;
 
+    // la asignacion de una cinta se puede hacer por copia, esto guarda
+    // la referencia desde donde se hace la copia
+    // Token m_source_tape_identifier;
+
     // una cinta se puede crear desde una aplicacion de funcion, esto guarda el nodo
     // asociado a una posible aplicacion de funcion
     struct Node *m_node;
@@ -75,6 +81,9 @@ public:
     // este constructor se usa para el caso en el que la cinta es el resultado de la
     // aplicacion de una maquina de turing a una cinta ya existente
     AssignamentStatement(Token tape_identifier);
+
+    // si se hace la asignacion por copia en el codigo
+    // AssignamentStatement(Token tape_identifier, Token source_tape_identifier);
 
     // este nodo se crea pasando una configuracion inicial de la cinta esta por
     // medio del parametro initial_tape_state, la longitud de esta configuracion
@@ -94,7 +103,8 @@ public:
     void add_node(const struct Node &node);
 
     // este metodo retorna true si este nodo tiene un nodo hijo
-    bool has_node();
+    bool has_node() const;
+    struct Node get_node() const;
 };
 
 
@@ -141,7 +151,8 @@ public:
     void add_node(struct Node &node);
 
     // esta funcion retorna true si este nodo tiene un nodo hijo
-    bool has_node();
+    bool has_node() const;
+    struct Node get_node() const;
 };
 
 
@@ -175,6 +186,7 @@ struct Node {
 
 // para facilitar la asignacion de estructuras por copia de valores
 void asignate_node(Node &target, const Node &source);
+std::ostream& operator<< (std::ostream &out, const Node &node);
 void liberate_node_space(Node &node);
 
 #endif

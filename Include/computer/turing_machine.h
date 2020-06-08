@@ -18,7 +18,7 @@ struct cmp_str{
 // representa una maquina de turing
 class TuringMachine{
 private:
-    // estado actual de la mente
+    // estado actual del puntero lectura/escritura
     State m_tape_head_state;
 
     // numero de instrucciones e instrucciones de la maquina de turing

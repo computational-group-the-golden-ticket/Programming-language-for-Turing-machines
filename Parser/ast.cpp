@@ -203,13 +203,19 @@ AssignamentStatement& AssignamentStatement::operator=(const AssignamentStatement
 
 void AssignamentStatement::add_node(const Node &node){
     m_node = (Node *) malloc((size_t) sizeof(Node));
+    // m_node[0] = {};
+
     asignate_node(m_node[0], node);
 
     m_has_node = true;
 }
 
-bool AssignamentStatement::has_node(){
+bool AssignamentStatement::has_node() const{
     return m_has_node;
+}
+
+Node AssignamentStatement::get_node() const{
+    return m_node[0];
 }
 
 
@@ -292,6 +298,14 @@ ApplicationStatement& ApplicationStatement::operator=(const ApplicationStatement
 
         m_node = (Node *) malloc((size_t) sizeof(Node));
         asignate_node(m_node[0], application_statement.m_node[0]);
+
+        // TODO: se debe mirar si los atributos de m_node tiene subnodos
+        /*if (application_statement.m_node[0].assignament_statement.has_node()){
+            asignate_node();
+        }
+
+        if (application_statement.m_node[0].applications_statement.has_node()){
+        }*/
     }
 
     if (application_statement.m_tape_identifier.value != nullptr){
@@ -307,15 +321,20 @@ ApplicationStatement& ApplicationStatement::operator=(const ApplicationStatement
 
 void ApplicationStatement::add_node(Node &node){
     m_node = (Node *) malloc((size_t) sizeof(Node));
+    // m_node[0] = {};
+
     asignate_node(m_node[0], node);
 
     m_has_node = true;
 }
 
-bool ApplicationStatement::has_node(){
+bool ApplicationStatement::has_node() const{
     return m_has_node;
 }
 
+Node ApplicationStatement::get_node() const{
+    return m_node[0];
+}
 
 Program::Program(): m_current_length{0}{
     m_nodes = (Node *) malloc((size_t) sizeof(Node) * 0);
@@ -341,24 +360,71 @@ void Program::add_node(Node &node){
 
 // TODO: esta funcion debe ser refactorizada para poder usarse
 void asignate_node(Node &target, const Node &source){
+    /*printf("ENTRO\n");
+
+    std::cout << source << '\n';
+    std::cout << target << '\n';
+
+    printf("NODE?: %d %d\n", target.application_statement.has_node(), target.type);*/
+
     target.type = source.type;
 
     switch (source.type){
         case DEFINITION_STATEMENT:
+            // printf("AQUI 1\n");
             target.definition_statement = source.definition_statement;
             break;
 
         case ASSIGNAMENT_STATEMENT:
+            // printf("AQUI 2\n");
             target.assignament_statement = source.assignament_statement;
             break;
 
         case APPLICATION_STATEMENT:
+            /*printf("AQUI 3\n");
+            std::cout << source << '\n';
+            std::cout << target << '\n';*/
             target.application_statement = source.application_statement;
+            // printf("ERROR\n");
             break;
 
         default:
             break;
     }
+
+    // printf("SALIO\n");
+}
+
+std::ostream& operator<< (std::ostream &out, const Node &node){
+    switch (node.type){
+        case DEFINITION_STATEMENT:
+            out << "DEFINITION STATEMENT";
+            break;
+
+        case ASSIGNAMENT_STATEMENT:
+            out << "ASSIGNAMENT STATEMENT";
+
+            if (node.assignament_statement.has_node()){
+                out << "\n    " << node.assignament_statement.get_node();
+            }
+
+            break;
+
+        case APPLICATION_STATEMENT:
+            out << "APPLICATION STATEMENT";
+
+            if (node.application_statement.has_node()){
+                out << "\n    " << node.application_statement.get_node();
+            }
+
+            break;
+
+        default:
+            out << "NULL NODE";
+            break;
+    }
+
+    return out;
 }
 
 void liberate_node_space(Node &node){

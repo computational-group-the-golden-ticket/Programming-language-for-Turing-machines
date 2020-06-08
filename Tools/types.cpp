@@ -7,11 +7,14 @@
 void asignate_state(State &target, State &source, bool re_asign){
     target.length = source.length;
 
+    // en caso de que el estado target tenga un valor, se debe liberar memoria para
+    // poder pedir nuevo espacio
     if (re_asign){
         free(target.symbol);
     }
 
     // este espacio debe ser liberado con free luego que la ejecucion del programa acabe
+    // o si se esta reasignando un nuevo estado
     target.symbol = (char *) malloc((size_t) sizeof(char) * target.length);
 
     for (int i = 0; i < target.length; i++){
